@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes,maximum-scale=1">
+    <title>qs redirecor</title>
+    <script src="./js/qs-redirector.js"></script>
+    <script>
+    var rOpts = { host: 'example.com', dest: 'index.html' };
+    var r = new QsRedirector(rOpts);
+    // 下記の`if {...}`は、テスト用の仕掛け
+    // ページを開いただけはリダイレクトせず、URLパラメータの`?d=`に指定があればリダイレクトします
+    if (r.existsParam('d')) {
+      // オプションで定義した'example.com/index.html'にリダイレクトします
+      r.redirect()
+    }
+
+    // 上の if {...} を全部削除して、下記のコメントアウトを解くと、即リダイレクトします
+    // r.redirect()
+
+    </script>
+</head>
+<body>
+  <h1>サンプルコード</h1>
+
+  <ul>
+    <li>
+      <!-- hrefでクエリ文字列だけを指定することで、このページをクエリ文字列付きで呼び出します -->
+      <a href="?d=go" data-test-link>?d=go</a> - 飛び先の引数を無視して、オプションで指定した外部サイトへ移動します
+    </li>
+  </ul>
+
+  <p>
+    上記の例でhrefで指定しているのは、`?=` 以下だけです。ページが遷移するのはリダイレクタによる効果です。
+  </p>
+
+  <a href="../index.html">back</a>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{
+  "name": "afb_jslib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/bundle.js",
+  "private": true,
+  "scripts": {
+    "ava": "cross-env NODE_ENV=test NODE_PATH=./ ava --verbose",
+    "build": "npm run build:dev",
+    "build:dev": "rollup --config rollup.qs-redirector.config.js",
+    "build:product": "npm-run-all clean test build:pro:without_test copy:redirect",
+    "build:pro:without_test": "cross-env BUILD_ENV=production npm run build",
+    "clean": "rimraf ./dist/*",
+    "copy": "run-p copy:**",
+    "copy:redirect": "node ./copy-qs-redirector.js",
+    "start": "browser-sync start --config bs-config.js",
+    "test": "cross-env NODE_ENV=test NODE_PATH=./ ava --verbose",
+    "watch": "npm run build:dev -- -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ajv": "^5.0.0",
+    "ava": "^0.23.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-module-resolver": "^3.0.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "browser-sync": "^2.18.13",
+    "cross-env": "^5.1.1",
+    "eslint": "^4.11.0",
+    "eslint-config-airbnb-base": "^12.0.1",
+    "eslint-import-resolver-babel-module": "^4.0.0-beta.3",
+    "eslint-import-resolver-node": "^0.3.1",
+    "eslint-plugin-ava": "^4.2.2",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "npm-run-all": "^4.1.2",
+    "path": "^0.12.7",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.50.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup-plugin-env": "^0.21.2",
+    "rollup-plugin-json": "^2.3.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-uglify": "^2.0.1",
+    "rollup-watch": "^4.3.1"
+  },
+  "ava": {
+    "concurrency": 5,
+    "failFast": true,
+    "files": [
+      "test/**/*.js"
+    ],
+    "require": [
+      "babel-register"
+    ]
+  }
+}

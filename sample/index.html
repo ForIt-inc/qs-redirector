@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes,maximum-scale=1">
+    <title>TEST QS Redirector</title>
+    <script>
+    var toLeave = ['localhost', '127.0.0.1'];
+
+    if (toLeave.indexOf(window.location.hostname) !== -1) {
+      window.location.replace(
+        window.location.protocol + '//localhost.localdomain:' + window.location.port + '/'
+      );
+    }
+    </script>
+</head>
+<body>
+  <h1>リダイレクト例</h1>
+  <ul>
+    <li>
+      <a href="./qs-redirector.html">シンプルな例</a>
+    </li>
+    <li>
+      <a href="./fixed-qs-redirector.html">リダイレクト先を外部サイトに固定した例</a>
+    </li>
+    <li>
+      <a href="./afb-qs-redirector.html">afbのトラッキングcookieを保存する例</a>
+    </li>
+  </ul>
+</body>
+</html>

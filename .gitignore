@@ -1,0 +1,8 @@
+.DS_Store
+*.bak
+*.diff
+*.orig
+Icon*
+node_modules/
+npm-debug.log
+Thumbs.db
