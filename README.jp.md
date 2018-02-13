@@ -31,6 +31,7 @@ npm には登録していませんので、直接ダウンロードしてご利
 1. 本プロジェクトのソースコード一式をダウンロード
 2. ターミナルを起動して、本プロジェクトのルートディレクトリへ移動
 3. ターミナルで `npm install` を実行
+    * `npm install` するのは、ダウンロード後の最初の1回だけで大丈夫です
 
 あとは、下記コマンドをターミナルで打ちトランスパイルをして、 `./dist` に出力されるJavaScriptを任意のディレクトリに置いて、HTMLから &lt;script&gt; タグで呼び出してください。
 
@@ -42,11 +43,11 @@ npm には登録していませんので、直接ダウンロードしてご利
 
 [sample/js/qs-redirector.js](sample/js/qs-redirector.js) は、予め上記の本番ビルドをしたコードです。このファイルを単純にコピーすれば、ビルド不要でそのままご利用になれます。
 
-ターミナルで`npm run start`と打つと、自動的にサーバとブラウザが起動して、実際の動作を確認できます。
+`npm install`が完了した状態で `npm start`と打つと、自動的にサーバとブラウザが起動して、実際の動作を確認できます。
 
 サーバの停止はターミナルで`Ctrl-C`です。
 
-`npm run start` 時に自動で開く [sample](sample) ディレクトリ内には、以下のようなサンプルがあります。詳しくはそれぞれのHTMLのソースをご確認ください。
+`npm start` 時に自動で開く [sample](sample) ディレクトリ内には、以下のようなサンプルがあります。詳しくはそれぞれのHTMLのソースをご確認ください。
 
 * [qs-redirector.html](sample/qs-redirector.html) - シンプルなリダイレクトの例。リダイレクト先をクエリ文字列で与えられています
 * [fixed-qs-redirector.html](sample/fixed-qs-redirector.html) - 上記のシンプルな例とほぼ同じ。外部のサイトにリダイレクトするようファイル内で指定しています
@@ -80,13 +81,11 @@ npm には登録していませんので、直接ダウンロードしてご利
     <!-- ↓JavaScriptが、HTMLファイルと同じ場所にある場合 -->
     <script src="./qs-redirector.js"></script>
     <script>
-    // リダイレクト設定
-    var rOpts = {
-      // すべてのクエリ文字列をリダイレクト先に渡します
-      ignore: [],
-    };
+    // リダイレクト設定。特に設定しなければ、すべてデフォルト設定になる
+    var rOpts = {};
 
     var r = new QsRedirector(rOpts);
+
     // リダイレクト実行
     r.redirect()
     // `?dest=`で指定されたディレクトリにリダイレクト
@@ -99,18 +98,20 @@ npm には登録していませんので、直接ダウンロードしてご利
 </html>
 
 ```
-単純にリダイレクトし直すだけなら以上で済みます。
+💡 単純にリダイレクトし直すだけなら、 **以上の知識だけ** で使えます。
 
-以下の説明は、もう少し複雑なことをしたい場合にお読みください。
+---
 
 ### クエリ文字列操作の関数
+
+💡 この先、少し込み入った話になります。 **リダイレクトの際に、他に何かを実行をしたい場合に** お読みください。
 
 現在のページに到達時点のクエリ文字列を読み取り、以下の操作で編集できます。
 
 * `existsParam(key)` - クエリ文字列にkeyが存在するかどうか調べる
 * `getParamValue(key)` - クエリ文字列からkeyに対応する値を取り出す
-* `addParam({ key: value} )` - クエリ文字列に `key=value` を追加する
-* `changeParam({ key: newValue} )` - クエリ文字列に存在する `key=value` を変更する
+* `addParam({ key: value })` - リダイレクト後のクエリ文字列に `key=value` を追加する
+* `changeParam({ key: newValue })` - クエリ文字列に存在する `key=value` を変更する
 
 ### リダイレクト設定の関数
 
@@ -192,28 +193,29 @@ r.redirect();
 
 ## オプション
 
-基本的にオプション無指定でデフォルトのまま実行できます。
+基本的に **オプション無指定** = **デフォルトのまま** 実行できます。細かい制御をする際に以下のオプションを指定して、 `new QsRedirector({...})` してください。
 
-* keyDest (String) - リダイレクト先のディレクトリを指定するクエリ文字列のキー名
+* keyDest (String) - リダイレクト先のディレクトリを指定するクエリ文字列のキー名。無指定なら `xxx.html?dest=somewhere` の `dest` が使われます
     * default: `dest`
-    * example: `keyDest: 'redirect/dir/page`
+    * example: `{ keyDest: 'dir' }`
+        * `xxx.html?dir=somewhere` のように `dir` での指定を読み取ります
 * ignore (Array<Sting>) - リダイレクト先には渡さないクエリ文字列のキー名
     * default: `[]`
-    * example: `ignore: ['abc', 'deleteme']`
-* query (String) - クエリ文字列すべて。主にテスト時に使用。無指定なら自動取得する
+    * example: `{ ignore: ['abc', 'deleteme'] }`
+* query (String) - クエリ文字列すべて。主にテスト時に使用。無指定なら現在のURIから自動取得
     * default: `window.location.search`
-    * example: `query: '?abc=123&xyz=zyx'`
-* protocol (String) - リダイレクト先のプロトコル。無指定なら自動取得する
+    * example: `{ query: '?abc=123&xyz=zyx' }`
+* protocol (String) - リダイレクト先のプロトコル。無指定なら現在のURIから自動取得
     * default: `window.location.protocol`
-    * example: `protocol: 'https:'`
-* host (String) - リダイレクト先のホスト名。無指定なら自動取得する
+    * example: `{ protocol: 'https:' }`
+* host (String) - リダイレクト先のホスト名。無指定なら現在のURIから自動取得
     * default: `window.location.hostname`
-    * example: `host: 'example.com'`
+    * example: `{ host: 'example.com' }`
 * shouldSanitize (Boolean) - クエリ文字列内の`<>()`を除去するかどうか。無指定なら除去
     * default: `true`
-    * example: `shouldSanitize: false`
+    * example: `{ shouldSanitize: false }`
 
-`shouldSanitze` フラグでの一部文字列除去は、リダイレクト先の脆弱性を突かれにくくするための「気休め」です。sanitize の役割はあまり期待しないでください。
+※ `shouldSanitze` フラグでの一部文字列除去は、リダイレクト先の脆弱性を突かれにくくするための「気休め」です。sanitize の役割はあまり期待しないでください。
 
 なお、クエリ文字列としてJSONを与えられることがあるので、引用符は除去対象外にしています。
 
@@ -226,8 +228,9 @@ r.redirect();
 
 ```JavaScript
 /*
- * 悪意のある第3者が以下のURIをばらまいたと想定。`danger.danger`は危険なドメイン
- * http://example.com/redirect?dest=dir/&host=danger.danger&x=abc で到達
+ * 悪意のある第3者が以下のURIをばらまいたと想定
+ * http://example.com/redirect?dest=dir/&host=danger.danger&x=abc
+ * `danger.danger` は危険なドメイン
  * ️️
  * 見た目は本来の目的地の `http://example.com/` へのリンクなのに、
  * 危険な `http://danger.danger/` に連れて行かれる！
@@ -240,7 +243,7 @@ const host = r.getParamValue('host')
 // リダイレクト先ホストを `danger.danger` に設定
 r.setHost(host);
 
-// 危険なサイトへリダイレクト実行
+// 危険なサイト`http://danger.danger`へリダイレクト実行
 r.redirect();
 ```
 
@@ -271,8 +274,10 @@ r.redirect();
 
 * `npm run build:dev` - `./src`のソースを`./dist`へ開発用にトランスパイル
 * `npm run build:product` - `./src`のソースを`./dist`へ本番用にトランスパイル
-* `npm test` - `./test`の内容に従って、自動テスト
+* `npm test` - `./test`内のファイル内容に従って、自動テスト
+    * [AVA](https://github.com/avajs/ava) を利用しています
 * `npm start` - サンプル確認用のサーバ起動
+    * [Browsersync](https://browsersync.io/) を利用しています
 
 ## ライセンス
 

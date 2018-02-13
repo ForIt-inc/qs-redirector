@@ -262,10 +262,10 @@ class QsRedirector {
 /**
  * 引数がまったく空でもQsRedirector本体を`new`できるようにする
  *
- * @param  {Object} [obj={}] QsRedirectorの設定
+ * @param  {Object} [opts={}] QsRedirectorの設定
  * @return {Object}          QsRedirector
  */
-const init = (obj = {}) => new QsRedirector(obj);
+const init = (opts = {}) => new QsRedirector(opts);
 
 // default で呼ばれるのは`init`の方
 export default init;

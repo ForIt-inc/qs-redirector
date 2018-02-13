@@ -71,7 +71,7 @@ const dataNormal = [
 /*
  * 正常だが少し崩れたデータ
  */
-const dataAbnormal = [
+const dataUnusual = [
   { // `&`ではなく`?`でつないである
     host,
     protocol,
@@ -179,11 +179,11 @@ test('正しいリダイレクト先URIを生成できる', (t) => {
 });
 
 test('少し形式がおかしくても正しいリダイレクト先を生成できる', (t) => {
-  const result = dataAbnormal.map((elm) => {
+  const result = dataUnusual.map((elm) => {
     const r = new Redirector(elm);
     return r.getRedirectUri(elm);
   });
-  const expected = dataAbnormal.map(elm => elm.redirect);
+  const expected = dataUnusual.map(elm => elm.redirect);
 
   t.deepEqual(result, expected);
 });
