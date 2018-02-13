@@ -1,5 +1,8 @@
-QS Redirector Sample
-====
+
+## QS Redirector Sample
+
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)]()
+
 
 与えられたURLクエリ文字列（URLクエリパラメータ）から、選択的にパラメータを引き継ぐリダイレクトURIを作成します。また、クエリ文字列を簡単に操作する機能も備えています。
 
@@ -39,8 +42,6 @@ npm には登録していませんので、直接ダウンロードしてご利
 
 [sample/js/qs-redirector.js](sample/js/qs-redirector.js) は、予め上記の本番ビルドをしたコードです。このファイルを単純にコピーすれば、ビルド不要でそのままご利用になれます。
 
-## サンプル
-
 ターミナルで`npm run start`と打つと、自動的にサーバとブラウザが起動して、実際の動作を確認できます。
 
 サーバの停止はターミナルで`Ctrl-C`です。
@@ -53,12 +54,13 @@ npm には登録していませんので、直接ダウンロードしてご利
 * [afb-qs-redirector.html](sample/afb-qs-redirector.html) - afbのcookieを保存後にリダイレクトする例
 
 
-## 利用例
+## 基本的な使い方
 
 最初に `new QsRedirector({オプション})` してください。
 
-* `const r = new QsRedirector({})` - すべてデフォルトの設定で使う
-* `const r = new QsRedirector({host: 'example.net'})` - 飛び先ホストを指定
+* ex. `const r = new QsRedirector({})` - すべてデフォルトの設定で使う
+    * cf. `const r = new QsRedirector()` でも大丈夫です
+* ex. `const r = new QsRedirector({host: 'example.net'})` - 飛び先ホストを指定
 
 ### メインの関数
 
@@ -87,8 +89,8 @@ npm には登録していませんので、直接ダウンロードしてご利
     var r = new QsRedirector(rOpts);
     // リダイレクト実行
     r.redirect()
-    // `?d=`で指定されたディレクトリにリダイレクト
-    // http://example.com/redirect.html?d=other/dir/&a=123 で到達していたら、
+    // `?dest=`で指定されたディレクトリにリダイレクト
+    // http://example.com/redirect.html?dest=other/dir/&a=123 で到達していたら、
     // http://example.com/other/dir/?a=123 にリダイレクトされる
     </script>
 </head>
@@ -110,7 +112,7 @@ npm には登録していませんので、直接ダウンロードしてご利
 * `addParam({ key: value} )` - クエリ文字列に `key=value` を追加する
 * `changeParam({ key: newValue} )` - クエリ文字列に存在する `key=value` を変更する
 
-### リダイレクト設定操作の関数
+### リダイレクト設定の関数
 
 後述のオプションの指定や、クエリ文字列中の`keyDest`で指定したキーの値を無視して、以下の値を変更します。
 
@@ -133,7 +135,7 @@ r.redirect();
 * 元々のリダイレクトページへのリンク
     * `http://example.com/lp/page?abc=123`
 * 上記へリダイレクトするこのリダイレクタ(redirector.html)へのリンク
-    * `http://example.com/redirector.html?d=lp/page&abc=123&xyz=999`
+    * `http://example.com/redirector.html?dest=lp/page&abc=123&xyz=999`
         * `d=lp/page` がリダイレクト先指定
         * `abc=123` はリダイレクト先が処理するクエリ文字列（引き継ぐ）
         * `xyz=999` が新たに処理をしなければならないクエリ文字列（引き継がない）
@@ -144,7 +146,7 @@ r.redirect();
 <script src="./qs-redirector.js/"></script>
 
 <script>
-    // http://example.com/redirector.html?d=lp/page&abc=123&xyz=999
+    // http://example.com/redirector.html?dest=lp/page&abc=123&xyz=999
 
     // `ignore` で指定した`xyz=999` は引き継がない
     // リダイレクト先指定の `d=...` はデフォルトで引き継がない
@@ -168,7 +170,7 @@ r.redirect();
 
 ```html
 <script>
-    // http://example.com/redirector.html?d=lp/page&abc=123&xyz=999
+    // http://example.com/redirector.html?dest=lp/page&abc=123&xyz=999
 
     const param = {
         ignore: ['xyz'],
@@ -193,7 +195,7 @@ r.redirect();
 基本的にオプション無指定でデフォルトのまま実行できます。
 
 * keyDest (String) - リダイレクト先のディレクトリを指定するクエリ文字列のキー名
-    * default: `d`
+    * default: `dest`
     * example: `keyDest: 'redirect/dir/page`
 * ignore (Array<Sting>) - リダイレクト先には渡さないクエリ文字列のキー名
     * default: `[]`
@@ -225,7 +227,7 @@ r.redirect();
 ```JavaScript
 /*
  * 悪意のある第3者が以下のURIをばらまいたと想定。`danger.danger`は危険なドメイン
- * http://example.com/redirect?d=dir/&host=danger.danger&x=abc で到達
+ * http://example.com/redirect?dest=dir/&host=danger.danger&x=abc で到達
  * ️️
  * 見た目は本来の目的地の `http://example.com/` へのリンクなのに、
  * 危険な `http://danger.danger/` に連れて行かれる！
@@ -246,7 +248,7 @@ r.redirect();
 
 ```JavaScript
 /*
- * http://example.com/redirect?d=dir/&type=net&x=abc で到達
+ * http://example.com/redirect?dest=dir/&type=net&x=abc で到達
  * http://example.net/dir/?x=abc にリダイレクトしたい
  */
 

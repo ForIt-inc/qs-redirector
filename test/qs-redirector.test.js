@@ -12,32 +12,32 @@ const dataNormal = [
   {
     host,
     protocol,
-    query: `?d=yyy/xxx/yyy.html&x=abc`,
+    query: `?dest=yyy/xxx/yyy.html&x=abc`,
     redirect: `${url}/yyy/xxx/yyy.html?x=abc`
   },
   {
     host,
     protocol,
-    query: `?d=?p=`,
+    query: `?dest=?p=`,
     redirect: `${url}/?p=`
   },
   {
     host,
     protocol,
-    query: `?d=&a=aaa&b=bbb`,
+    query: `?dest=&a=aaa&b=bbb`,
     redirect: `${url}/?a=aaa&b=bbb`
   },
   { // ディレクトリ設定が後に配置されている
     host,
     protocol,
-    query: `?a=aaa&b=bbb&d=subdir/`,
+    query: `?a=aaa&b=bbb&dest=subdir/`,
     redirect: `${url}/subdir/?a=aaa&b=bbb`
   },
   { // 無視すべきキーがきちんと無視される
     host,
     protocol,
     ignore: ['fil', 'ignore'],
-    query: `?fil=ignore&a=aaa&b=bbb&d=subdir/&ignore=deleteme`,
+    query: `?fil=ignore&a=aaa&b=bbb&dest=subdir/&ignore=deleteme`,
     redirect: `${url}/subdir/?a=aaa&b=bbb`
   },
   { // ディレクトリ設定キーの変更がきちんと反映される
@@ -51,20 +51,20 @@ const dataNormal = [
     host,
     protocol,
     dest: 'fixed',
-    query: `?a=aaa&b=bbb&d=subdir/`,
+    query: `?a=aaa&b=bbb&dest=subdir/`,
     redirect: `${url}/fixed?a=aaa&b=bbb`
   },
   { // パラメータに空白があってもそのまま出力する
     host,
     protocol,
-    query: `?d=dir/file?xadid=mtg onlineshop_afi_ab_1101_200_200 ex`,
-    redirect: `${url}/dir/file?xadid=mtg onlineshop_afi_ab_1101_200_200 ex`
+    query: `?dest=dir/file?xid=sample shop ex`,
+    redirect: `${url}/dir/file?xid=sample shop ex`
   },
   { // URIエンコードされていてもそのまま引き渡す
     host,
     protocol,
-    query: `?d=?xid=sample%20onlineshop_200_200+ex`,
-    redirect: `${url}/?xid=sample%20onlineshop_200_200+ex`
+    query: `?dest=?xid=sample%20shop+ex`,
+    redirect: `${url}/?xid=sample%20shop+ex`
   }
 ];
 
@@ -75,51 +75,51 @@ const dataAbnormal = [
   { // `&`ではなく`?`でつないである
     host,
     protocol,
-    query: `?d=/yyy/xxx/yyy?x=abc`,
+    query: `?dest=/yyy/xxx/yyy?x=abc`,
     redirect: `${url}/yyy/xxx/yyy?x=abc`
   },
   { // ディレクトリ指定で、頭に`/`がある
     host,
     protocol,
-    query: `?d=/yyy/xxx/yyy?x=abc?y=def`,
+    query: `?dest=/yyy/xxx/yyy?x=abc?y=def`,
     redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
   },
   { // 頭の`?`がない
     host,
     protocol,
-    query: `d=/yyy/xxx/yyy?x=abc?y=def`,
+    query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
     redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
   },
   { // value部分がURIエンコードしてある(?dだけデコード)
     host,
     protocol,
-    query: `?d=yyy%2Fxxx%2Fyyy?x=%7B%22key%22%3A%22value%7D`,
+    query: `?dest=yyy%2Fxxx%2Fyyy?x=%7B%22key%22%3A%22value%7D`,
     redirect: `${url}/yyy/xxx/yyy?x=%7B%22key%22%3A%22value%7D`
   },
   { // スクリプトを渡そうとしているが、`shouldSanitize = false` なので何もしない
     host,
     protocol,
     shouldSanitize: false,
-    query: `?d=/yyy/xxx/yyy&x=abc&tag=<script>alert()</script>`,
+    query: `?dest=/yyy/xxx/yyy&x=abc&tag=<script>alert()</script>`,
     redirect: `${url}/yyy/xxx/yyy?x=abc&tag=<script>alert()</script>`
   },
   { // protocolに`:`がない
     host,
     protocol: 'http',
-    query: `d=/yyy/xxx/yyy?x=abc?y=def`,
+    query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
     redirect: `http://${host}/yyy/xxx/yyy?x=abc&y=def`
   },
   { // protocolに不要な`/`がある
     host,
     protocol: 'http://',
-    query: `d=/yyy/xxx/yyy?x=abc?y=def`,
+    query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
     redirect: `http://${host}/yyy/xxx/yyy?x=abc&y=def`
   },
   { // 無視すべきキーが配列ではなく文字列で指定されている
     host,
     protocol,
     ignore: 'fil',
-    query: `?fil=ignore&a=aaa&b=bbb&d=subdir/&ignore=deleteme`,
+    query: `?fil=ignore&a=aaa&b=bbb&dest=subdir/&ignore=deleteme`,
     redirect: `${url}/subdir/?a=aaa&b=bbb&ignore=deleteme`
   },
 ];
@@ -131,37 +131,37 @@ const dataCrack = [
   { // ディレクトリを相対指定している
     host,
     protocol,
-    query: `?d=../\.\./passwd?x=abc?y=def`,
+    query: `?dest=../\.\./passwd?x=abc?y=def`,
     redirect: `${url}/passwd?x=abc&y=def`
   },
   { // ディレクトリ指定のあちこちに余計な`/`がある
     host,
     protocol,
-    query: `?d=/yyy//xxx///yyy?x=abc?y=def`,
+    query: `?dest=/yyy//xxx///yyy?x=abc?y=def`,
     redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
   },
   { // ディレクトリ指定のあちこちに怪しい`\`がある
     host,
     protocol,
-    query: `?d=\\\/yyy/\/xxx/\\//yyy?x=abc?y=def`,
+    query: `?dest=\\\/yyy/\/xxx/\\//yyy?x=abc?y=def`,
     redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
   },
   { // URLを入れようとしているので壊す
     host,
     protocol,
-    query: `?d=//http://example.com&x=abc`,
+    query: `?dest=//http://example.com&x=abc`,
     redirect: `${url}/http/example.com?x=abc`
   },
   { // スクリプトを入れようとしているので壊す
     host,
     protocol,
-    query: `?d=/yyy/xxx/yyy&x=abc&script="</script><script>alert()</script>`,
+    query: `?dest=/yyy/xxx/yyy&x=abc&script="</script><script>alert()</script>`,
     redirect: `${url}/yyy/xxx/yyy?x=abc&script="/scriptscriptalert/script`
   },
   { // 小細工してURLやスクリプトを入れようとしているので壊す
     host,
     protocol,
-    query: `?d=//http%3A%2F%2Fexample.com&x=abc&script="<script>alert%28%29%3C/script%3E`,
+    query: `?dest=//http%3A%2F%2Fexample.com&x=abc&script="<script>alert%28%29%3C/script%3E`,
     redirect: `${url}/http/example.com?x=abc&script="scriptalert/script`
   }
 ];

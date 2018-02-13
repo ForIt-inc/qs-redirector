@@ -58,7 +58,7 @@ class QsRedirector {
    * コンストラクタ
    * 引数はすべて省略可能
    *
-   * @param {string}  [keyDest='d']                       リダイレクト先ディレクトリ・ファイル指定するキー
+   * @param {string}  [keyDest='dest']                       リダイレクト先ディレクトリ・ファイル指定するキー
    * @param {Array<string>} [ignore=[]]                   リダイレクトしないクエリ文字列のキーの配列
    * @param {string}  [query=window.location.search]      `?`で始まるクエリ部分。通常は省略
    * @param {string}  [protocol=window.location.protocol] 転送先のプロトコル。ほとんどの場合 http / https のいずれか
@@ -80,7 +80,7 @@ class QsRedirector {
    * 飛び先指定の`d`と、無視対象に指定した`c`はリダイレクト先には渡らない
    */
   constructor({
-    keyDest = 'd',
+    keyDest = 'dest',
     ignore = [],
     query = window.location.search,
     protocol = window.location.protocol,

@@ -1,7 +1,7 @@
 {
   "name": "afb_jslib",
   "version": "1.0.0",
-  "description": "",
+  "description": "Redirecting according to query string",
   "main": "./dist/bundle.js",
   "private": true,
   "scripts": {
