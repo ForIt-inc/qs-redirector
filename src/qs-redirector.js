@@ -35,7 +35,8 @@ const getAllKeyValue = (queryString) => {
 };
 
 /**
- * クエリ文字列ハッシュ配列を連結して `key1=value1&key2=value2` のような文字列を返す
+ * クエリ文字列オブジェクト配列を連結して、
+ * `key1=value1&key2=value2` のような文字列を返す
  *
  * ※ クラスの内部のみで使われるfunction
  *
@@ -49,7 +50,7 @@ const createQueryString = queryStringArray =>
   }).join('&');
 
 /**
- * 引き渡すクエリ文字列をフィルターできるリダイレクタ。これが本体部分
+ * 引き渡すクエリ文字列を簡単に編集できるリダイレクタ
  * クエリパラメータの操作機能も備えている
  */
 class QsRedirector {
@@ -157,7 +158,7 @@ class QsRedirector {
   /**
    * keyを指定して、クエリ文字列内の対応する値を変更する
    *
-   * @param {Object} {key: value}  クエリ文字列中のキー : 新しい値
+   * @param {Object} hash {クエリ文字列中のキー : 新しい値}
    */
   changeParam(hash) {
     const key = Object.keys(hash)[0];
@@ -178,7 +179,9 @@ class QsRedirector {
    * @example setDest('other/dir/index.html')
    */
   setDest(dest) {
-    this.fixedDest = dest;
+    if (dest) {
+      this.fixedDest = dest;
+    }
   }
 
   /**
@@ -188,7 +191,9 @@ class QsRedirector {
    * @example setHost('www.example.com')
    */
   setHost(host) {
-    this.host = host;
+    if (host) {
+      this.host = host;
+    }
   }
 
   /**
@@ -198,13 +203,15 @@ class QsRedirector {
    * @example setProtocol('https:')
    */
   setProtocol(protocol) {
-    this.protocol = protocol;
+    if (protocol) {
+      this.protocol = protocol;
+    }
   }
 
   /**
    * 無視指定パラメータを除外して、引き継ぎパラメータを返す
    *
-   * @return {Array<Object>} [description]
+   * @return {Array<Object>} フィルタされたクエリ文字列オブジェクト
    */
   getFilteredQueryStringHash() {
     return this.allQueryStringHash.filter((elm) => {
@@ -237,7 +244,8 @@ class QsRedirector {
     const host_dest = `${this.host}/${sanitizedDest}`.replace(/\/+/g, '/');
 
     // 無視対象のパラメータを除去したクエリ文字列を作り直す
-    const queryString = createQueryString(this.getFilteredQueryStringHash());
+    const queryString =
+      createQueryString(this.getFilteredQueryStringHash());
 
     return `${protocol}//${host_dest}?${queryString}`;
   }

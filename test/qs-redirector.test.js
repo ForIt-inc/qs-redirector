@@ -168,7 +168,7 @@ const dataCrack = [
 
 /* ********* テスト開始 ********* */
 
-test('☑️ 正しいリダイレクト先URIを生成できる', (t) => {
+test('正しいリダイレクト先URIを生成できる', (t) => {
   const result = dataNormal.map((elm) => {
     const r = new Redirector(elm);
     return r.getRedirectUri(elm);
@@ -178,7 +178,7 @@ test('☑️ 正しいリダイレクト先URIを生成できる', (t) => {
   t.deepEqual(result, expected);
 });
 
-test('☑️ 少し形式がおかしくても正しいリダイレクト先を生成できる', (t) => {
+test('少し形式がおかしくても正しいリダイレクト先を生成できる', (t) => {
   const result = dataAbnormal.map((elm) => {
     const r = new Redirector(elm);
     return r.getRedirectUri(elm);
@@ -188,7 +188,7 @@ test('☑️ 少し形式がおかしくても正しいリダイレクト先を�
   t.deepEqual(result, expected);
 });
 
-test('❕ 危険そうな文字を削除してリダイレクト先を生成できる', (t) => {
+test('危険そうな文字を削除してリダイレクト先を生成できる', (t) => {
   const result = dataCrack.map((elm) => {
     const r = new Redirector(elm);
     return r.getRedirectUri(elm);
@@ -199,48 +199,56 @@ test('❕ 危険そうな文字を削除してリダイレクト先を生成で�
 });
 
 /* ****** パラメータ操作のテスト ***** */
-test('☑️ クエリ文字中の特定パラメータの存在を確かめられる', (t) => {
+test('クエリ文字中の特定パラメータの存在を確かめられる', (t) => {
   const paramKeys = ['x', 'y']; // `y` は存在しないので、ログでその旨を報告される
-  const r = new Redirector(dataNormal[0]);
-  const result = paramKeys.map(elm => r.existsParam(elm));
   const expected = [true, false];
 
+  const r = new Redirector(dataNormal[0]);
+  const result = paramKeys.map(elm => r.existsParam(elm));
+
   t.deepEqual(result, expected);
 });
 
-test('☑️ クエリ文字中の特定パラメータの値を取得できる', (t) => {
+test('クエリ文字中の特定パラメータの値を取得できる', (t) => {
   const paramKeys = ['x', 'y'];
-  const r = new Redirector(dataNormal[0]);
-  const result = paramKeys.map(elm => r.getParamValue(elm));
   const expected = ['abc', ''];
 
+  const r = new Redirector(dataNormal[0]);
+  const result = paramKeys.map(elm => r.getParamValue(elm));
+
   t.deepEqual(result, expected);
 });
 
-test('☑️ クエリ文字中の特定パラメータの値を追加できる', (t) => {
+test('クエリ文字中の特定パラメータの値を追加できる', (t) => {
   const data = dataNormal[0];
   const newParam = { extra: 'exValue' };
+  const expected = `${data.redirect}&extra=exValue`;
+
   const r = new Redirector(data);
   r.addParam(newParam);
   const result = r.getRedirectUri();
-  const expected = `${data.redirect}&extra=exValue`;
 
   t.is(result, expected);
 });
 
-test('☑️ クエリ文字中の特定パラメータの値を変更できる', (t) => {
+test('クエリ文字中の特定パラメータの値を変更できる', (t) => {
   const data = dataNormal[0];
   const newParam = { x: 'xyz' };
+  const expected = `${data.redirect.replace(/x=abc/, 'x=xyz')}`;
+
   const r = new Redirector(data);
   r.changeParam(newParam);
   const result = r.getRedirectUri();
-  const expected = `${data.redirect.replace(/x=abc/, 'x=xyz')}`;
 
   t.is(result, expected);
 });
 
-test('☑️ protocol, host, destの値を変更できる', (t) => {
-  const opts = { protocol: 'http:', host: 'example.net', dest: 'otherdir/page' };
+test('protocol, host, destの値を変更できる', (t) => {
+  const opts = {
+    protocol: 'http:',
+    host: 'example.net',
+    dest: 'otherdir/page'
+  };
   const expected = 'http://example.net/otherdir/page?x=abc';
 
   const r = new Redirector(dataNormal[0]);
@@ -250,4 +258,32 @@ test('☑️ protocol, host, destの値を変更できる', (t) => {
   const result = r.getRedirectUri();
 
   t.is(result, expected);
+});
+
+test('protocol, host, destの値が空文字またはundefinedなら無視する', (t) => {
+  const data = dataNormal[0];
+  const expected = [true, true];
+  const opts = [
+    {
+      protocol: '',
+      host: '',
+      dest: ''
+    },
+    {
+      protocol: undefined,
+      host: undefined,
+      dest: undefined
+    }
+  ];
+
+  const r = new Redirector(data);
+
+  const results = opts.map((elm) => {
+    r.setProtocol(elm.protocol);
+    r.setHost(elm.host);
+    r.setDest(elm.dest);
+    return r.getRedirectUri() === data.redirect;
+  });
+
+  t.deepEqual(results, expected);
 });

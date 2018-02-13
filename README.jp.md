@@ -1,7 +1,7 @@
 QS Redirector Sample
 ====
 
-与えられたURLクエリ文字列から、選択的にパラメータを引き継ぐリダイレクト用のURIを作成します。また、クエリ文字列を簡単に操作する機能も備えています。
+与えられたURLクエリ文字列（URLクエリパラメータ）から、選択的にパラメータを引き継ぐリダイレクトURIを作成します。また、クエリ文字列を簡単に操作する機能も備えています。
 
 ## 特徴
 
@@ -17,10 +17,9 @@ QS Redirector Sample
 以下の特徴があります。
 
 * HTMLページのJavaScriptで機能する
-* 自ページ内でのみ使用するURLクエリは、リダイレクト先には渡さない
 * URLクエリを簡単に編集できる
 * 自ページとは別のドメインにもリダイレクトできる
-* オープンリダイレクト脆弱性に配慮
+    * オープンリダイレクト脆弱性に一定の配慮
 
 ## インストール（ビルド方法）
 
@@ -50,6 +49,7 @@ npm には登録していませんので、直接ダウンロードしてご利
 
 * qs-redirector.html - シンプルなリダイレクトの例。リダイレクト先をクエリ文字列で与えられています
 * fixed-qs-redirector.html - 上記のシンプルな例とほぼ同じ。外部のサイトにリダイレクトするようファイル内で指定しています
+* ex-qs-redirector.html - 外部のサイトをクエリ文字列内で選択してリダイレクトする例
 * afb-qs-redirector.html - afbのcookieを保存後リダイレクトする例
 
 
@@ -153,6 +153,7 @@ r.redirect();
 
     // URLクエリ文字列 `xyz=999` を解釈して何かを行なう
     const xyz = r.getParamValue('xyz');
+    doSomething(xyz); // 何らかの処理 `doSomething()` を実行
 
     // リダイレクト実行 http://example.com/lp/page?abc=123
     r.redirect();
@@ -172,13 +173,13 @@ r.redirect();
     const param = {
         ignore: ['xyz'],
         protocol: 'https:',
-        host: 'example.net'
+        host: 'example.net' // 外部の hostname を指定
     };
 
     const r = new QsRedirector(param);
     // URLクエリ文字列 `xyz=999` を解釈して何かを行なう
     const xyz = r.getParamValue('xyz');
-    (...何か)
+    doSomething(xyz); // 何らかの処理 `doSomething()` を実行
 
     // リダイレクト実行 http://example.net/lp/page?abc=123
     r.redirect();
@@ -218,46 +219,50 @@ r.redirect();
 
 ️️❗ `protocol` や `host` などのリダイレクト先を大きく変更する値は、クエリ文字列に与えられた文字列そのものを使わないようにしてください。脆弱性に繋がります。
 
-👌 大丈夫な例
+
+💀 危険な例
 
 ```JavaScript
-// http://example.com/redirect?d=dir/&type=net&x=abc で到達
-// http://example.net/dir/?x=abc にリダイレクトしたい
+/*
+ * 悪意のある第3者が以下のURIをばらまいたと想定。`danger.danger`は危険なドメイン
+ * http://example.com/redirect?d=dir/&host=danger.danger&x=abc で到達
+ * ️️
+ * 見た目は本来の目的地の `http://example.com/` へのリンクなのに、
+ * 危険な `http://danger.danger/` に連れて行かれる！
+ */
+const param = { ignore: 'type' };
+const r = new QsRedirector(param);
+
+// クエリ文字列から`host`の値そのものを取得する ️️❗ ここが危険
+const host = r.getParamValue('host')
+// リダイレクト先ホストを `danger.danger` に設定
+r.setHost(host);
+
+// 危険なサイトへリダイレクト実行
+r.redirect();
+```
+
+👌 安全な例
+
+```JavaScript
+/*
+ * http://example.com/redirect?d=dir/&type=net&x=abc で到達
+ * http://example.net/dir/?x=abc にリダイレクトしたい
+ */
 
 const param = { ignore: 'type' };
 const r = new QsRedirector(param);
 
 // hostのパターンを設定
-const hosts = [com: 'example.com', net: 'example.net'];
+const hosts = { com: 'example.com', net: 'example.net' };
 // クエリ文字列から`type`の値を取得する。この例では `net` という文字列
 const type = r.getParamValue('type')
 // リダイレクト先ホストを設定。この例では `example.net` が選択される
-r.setHost(host[type]);
+r.setHost(hosts[type]);
+// `hosts` に存在しない想定外の`type`なら無視され、危険なリダイレクトを防ぐ
 
 // リダイレクト実行
 r.redirect();
-
-```
-
-💀 危険な例
-
-```JavaScript
-// 悪意のある第3者が以下のURIを発行。`danger.danger`は危険なドメイン
-// http://example.com/redirect?d=dir/&host=danger.danger&x=abc で到達
-// ️️❗ 危険な http://danger.danger/dir/?x=abc にリダイレクトしてしまう
-
-const param = { ignore: 'type' };
-const r = new QsRedirector(param);
-
-const hosts = [com: 'example.com', net: 'example.net'];
-// クエリ文字列から`host`の値そのものを取得する ️️❗ ここが危険
-const host = r.getParamValue('host')
-// リダイレクト先ホストを設定
-r.setHost(host);
-
-// リダイレクト実行
-r.redirect();
-
 ```
 
 ## 主要 npm scripts

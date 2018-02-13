@@ -2,6 +2,7 @@
 *.bak
 *.diff
 *.orig
+dist/
 Icon*
 node_modules/
 npm-debug.log

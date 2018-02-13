@@ -7,6 +7,7 @@
     <script src="./js/qs-redirector.js"></script>
     <script>
     var r = new QsRedirector();
+
     // 下記の`if {...}`は、テスト用の仕掛け
     // ページを開いただけはリダイレクトせず、URLパラメータの`?d=`に指定があればリダイレクトします
     if (r.existsParam('d')) {

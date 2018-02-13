@@ -8,6 +8,7 @@
     <script>
     var rOpts = { host: 'example.com', dest: 'index.html' };
     var r = new QsRedirector(rOpts);
+
     // 下記の`if {...}`は、テスト用の仕掛け
     // ページを開いただけはリダイレクトせず、URLパラメータの`?d=`に指定があればリダイレクトします
     if (r.existsParam('d')) {
