@@ -41,16 +41,16 @@ npm には登録していませんので、直接ダウンロードしてご利
 
 ## サンプル
 
-[sample](sample) ディレクトリ内のHTMLのソースをご確認ください。
-
 ターミナルで`npm run start`と打つと、自動的にサーバとブラウザが起動して、実際の動作を確認できます。
 
 サーバの停止はターミナルで`Ctrl-C`です。
 
-* qs-redirector.html - シンプルなリダイレクトの例。リダイレクト先をクエリ文字列で与えられています
-* fixed-qs-redirector.html - 上記のシンプルな例とほぼ同じ。外部のサイトにリダイレクトするようファイル内で指定しています
-* ex-qs-redirector.html - 外部のサイトをクエリ文字列内で選択してリダイレクトする例
-* afb-qs-redirector.html - afbのcookieを保存後リダイレクトする例
+`npm run start` 時に自動で開く [sample](sample) ディレクトリ内には、以下のようなサンプルがあります。詳しくはそれぞれのHTMLのソースをご確認ください。
+
+* [qs-redirector.html](sample/qs-redirector.html) - シンプルなリダイレクトの例。リダイレクト先をクエリ文字列で与えられています
+* [fixed-qs-redirector.html](sample/fixed-qs-redirector.html) - 上記のシンプルな例とほぼ同じ。外部のサイトにリダイレクトするようファイル内で指定しています
+* [ex-qs-redirector.html](sample/ex-qs-redirector.html) - 外部のサイトをクエリ文字列内で選択してリダイレクトする例
+* [afb-qs-redirector.html](sample/afb-qs-redirector.html) - afbのcookieを保存後にリダイレクトする例
 
 
 ## 利用例
