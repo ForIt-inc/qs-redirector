@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes,maximum-scale=1">
+    <title>qs redirecor</title>
+    <script src="./js/qs-redirector.js"></script>
+    <script>
+    var r = new QsRedirector();
+
+    // 下記の`if {...}`は、テスト用の仕掛け
+    // ページを開いただけはリダイレクトせず、URLパラメータの`?dest=`に指定があればリダイレクトします
+    if (r.existsParam('dest')) {
+      // newする際、引数が空もしくは、空オブジェクト`{}` ならばデフォルトの設定になります
+      r.redirect()
+    }
+
+    // 上の if {...} を全部削除して、下記のコメントアウトを解くと、即リダイレクトします
+    // r.redirect()
+
+    </script>
+</head>
+<body>
+  <h1>サンプルコード</h1>
+
+  <ul>
+    <li>
+      <!-- hrefでクエリ文字列だけを指定することで、このページをクエリ文字列付きで呼び出します -->
+      <a href="?dest=subdir/dest.html" data-test-link>?dest=subdir/index.html</a> - `./subdir/index.html` に移動する引数を発行
+    </li>
+  </ul>
+
+  <p>
+    上記の例でhrefで指定しているのは、`?=` 以下だけです。ページが遷移するのはリダイレクタによる効果です。
+  </p>
+
+  <a href="./index.html">back</a>
+</body>
+</html>

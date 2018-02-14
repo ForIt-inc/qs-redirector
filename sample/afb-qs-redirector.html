@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes,maximum-scale=1">
+    <title>qs redirecor</title>
+    <script src="./js/qs-redirector.js"></script>
+    <script>
+    //
+    var callbackFunc = function() {
+      // リダイレクト設定
+      var rOpts = {
+        // トラッキング情報はこのページでcookieに入れるので無視対象にします
+        ignore: ['fil'],
+      };
+
+      var r = new QsRedirector(rOpts);
+      r.redirect();
+    }
+
+    if (!window.afblpcvLpConf) {
+      window.afblpcvLpConf = [];
+    }
+    window.afblpcvLpConf.push({
+      // siteIdはサンプル値です。正しい値に変更してください
+      siteId: "c01234",
+      // cookie保存後に `callback` で指定したfunctionが実行されます
+      callback: callbackFunc
+    });
+
+    </script>
+    <!-- トラッキングJavaScript呼び出しの引数はサンプル値です。正しい値に変更してください -->
+    <script src="https://t.afi-b.com/jslib/lpcv.js?cid=c01234&pid=C6444d" async="async"></script>
+</head>
+<body>
+  <h1>サンプルコード</h1>
+
+  <ul>
+    <li>
+      <a href="?dest=subdir/dest.html&amp;fil=%7B%22pr%22%3A%7B%22C6444d%22%3A%7B%22clk%22%3A%223ec43e3a0297c0df7e60993e9470d309%22%2C%22ym%22%3A%22201712%22%7D%7D%7D&amp;afblpcvtest=true">afbのcookieを保存後にリダイレクト</a>
+    </li>
+  </ul>
+
+  <a href="./index.html">back</a>
+</body>
+</html>

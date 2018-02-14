@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes,maximum-scale=1">
+    <title>qs redirecor</title>
+    <script src="./js/qs-redirector.js"></script>
+    <script>
+    var rOpts = { ignore: 'type' };
+    var r = new QsRedirector(rOpts);
+
+    // 下記の`if {...}`は、テスト用の仕掛け
+    // ページを開いただけはリダイレクトせず、URLパラメータの`?type=`に指定があればリダイレクトします
+    if (r.existsParam('type')) {
+      // hostのパターンを設定
+      var hosts = { com: 'example.com', net: 'example.net' };
+
+      // クエリ文字列から`type`の値を取得する。この例では `net` という文字列
+      var type = r.getParamValue('type')
+      // リダイレクト先ホストを設定。この例では `example.net` が選択される
+      r.setHost(hosts[type]);
+      // `hosts` に存在しない想定外の`type`なら無視され、危険なリダイレクトを防ぐ
+
+      // リダイレクト実行
+      r.redirect();
+    }
+
+    </script>
+</head>
+<body>
+  <h1>サンプルコード</h1>
+
+  <ul>
+    <li>
+      <!-- hrefでクエリ文字列だけを指定することで、このページをクエリ文字列付きで呼び出します -->
+      <a href="?type=net">👌 ?type=net</a> - オプションで指定した外部サイトへ移動します（️️❗ 実際に exmple.net に飛びます）
+    </li>
+    <li>
+      <!-- hrefでクエリ文字列だけを指定することで、このページをクエリ文字列付きで呼び出します -->
+      <a href="?type=daanger.danger">💀 ?type=danger.danger</a> - パターンにないtypeを指定した場合、値が無視され危険なリダイレクトを防ぎます
+    </li>
+  </ul>
+
+  <p>
+    上記の例でhrefで指定しているのは、`?=` 以下だけです。ページが遷移するのはリダイレクタによる効果です。
+  </p>
+
+  <a href="./index.html">back</a>
+</body>
+</html>
