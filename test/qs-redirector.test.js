@@ -75,8 +75,8 @@ const dataUnusual = [
   { // `&`ではなく`?`でつないである
     host,
     protocol,
-    query: `?dest=/yyy/xxx/yyy?x=abc`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc`
+    query: `?dest=/xxx/xxx/yyy?x=abc`,
+    redirect: `${url}/xxx/xxx/yyy?x=abc`
   },
   { // ディレクトリ指定で、頭に`/`がある
     host,
@@ -87,8 +87,8 @@ const dataUnusual = [
   { // 頭の`?`がない
     host,
     protocol,
-    query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
+    query: `dest=/xyz/xxx/yyy?x=abc?y=def`,
+    redirect: `${url}/xyz/xxx/yyy?x=abc&y=def`
   },
   { // value部分がURIエンコードしてある(?dだけデコード)
     host,
@@ -105,14 +105,14 @@ const dataUnusual = [
   { // protocolに不要な`/`がある
     host,
     protocol: 'http://',
-    query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
-    redirect: `http://${host}/yyy/xxx/yyy?x=abc&y=def`
+    query: `dest=/zzz/xxx/yyy?x=abc?y=def`,
+    redirect: `http://${host}/zzz/xxx/yyy?x=abc&y=def`
   },
   { // あちこちに余計な引用符がある
     host,
     protocol,
-    query: `?dest=zzz/xxx/"y'y"y?x=ab'c?y="def`,
-    redirect: `${url}/zzz/xxx/%22y'y%22y?x=ab'c&y=%22def`
+    query: `?dest=abc/xxx/"y'y"y?x=ab'c?y="def`,
+    redirect: `${url}/abc/xxx/%22y'y%22y?x=ab'c&y=%22def`
   },
   { // 無視すべきキー(ignore)が配列ではなく単一の文字列で指定されている
     host,

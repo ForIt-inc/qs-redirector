@@ -52,8 +52,10 @@ const createQueryString = queryStringArray =>
 /**
  * 悪意がありそうなクエリ文字列を書き換える
  *
- * JSONで使われず、XSSを目論んでそうなクエリ文字列を削除している
- * かなり雑なやり方なので注意
+ * JSONで使われず、XSSを目論んでそうなクエリ文字列を削除
+ * 雑なやり方なので注意
+ *
+ * ※ クラスの内部のみで使われるfunction
  *
  * @param   {string} qs クエリ文字列
  * @return  {string}    書き換え後のクエリ文字列

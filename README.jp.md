@@ -19,7 +19,7 @@
 
 以下の特徴があります。
 
-* HTMLページのJavaScriptで機能する
+* HTMLのページを用意すればリダイレクトできる
 * URLクエリを簡単に編集できる
 * 自ページとは別のドメインにもリダイレクトできる
     * オープンリダイレクト脆弱性に一定の配慮
@@ -42,9 +42,9 @@
 
 ### ️️💡 そういう面倒なこと抜きで使うには？
 
-スクリプトを改造する予定がない場合は、上記 `npm xxx` のような手順は一切不要です。
+スクリプトを改造する予定がない場合は、上記 `npm xxx` のような手順は不要です。
 
-予め本番ビルドをしたコードを [sample/js/qs-redirector.js](sample/js/qs-redirector.js) として添付してあります。このファイルを単純にコピーすれば、ビルド不要で **そのままご利用になれます。** 
+予め本番ビルドをしたコードを [sample/js/qs-redirector.js](sample/js/qs-redirector.js) として添付してあります。このファイルをコピーすれば、ビルド不要で **そのままご利用になれます。**
 
 ### 💡 サンプルコードを動かしてみるには？
 
@@ -77,13 +77,14 @@
     * 別の方法でリダイレクトしたい時や、飛び先を確認したい時に使用してください
     * ex. `var uri = r.getRedirectUri();`
 
+#### HTML サンプル
 ```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="utf-8">
     <title>redirect</title>
-    <!-- ↓JavaScriptが、HTMLファイルと同じ場所にある場合 -->
+    <!-- 任意の場所に置いた本スクリプトを呼び出す -->
     <script src="./qs-redirector.js"></script>
     <script>
     // リダイレクト設定。特に設定しなければ、すべてデフォルト設定になる
@@ -107,9 +108,9 @@
 
 ---
 
-### クエリ文字列操作の関数
+💡 この先、少し込み入った話になります。 **リダイレクトの際に、何かを実行をしたい場合に** お読みください。
 
-💡 この先、少し込み入った話になります。 **リダイレクトの際に、他に何かを実行をしたい場合に** お読みください。
+### クエリ文字列操作の関数
 
 現在のページに到達時点のクエリ文字列を読み取り、以下の操作で編集できます。
 
@@ -155,15 +156,15 @@ r.redirect();
     // http://example.com/redirector.html?dest=lp/page&abc=123&xyz=999
 
     // `ignore` で指定した`xyz=999` は引き継がない
-    // リダイレクト先指定の `d=...` はデフォルトで引き継がない
-    const param = { ignore: 'xyz' };
+    // リダイレクト先指定の `dest=...` はデフォルトで引き継がない
+    const param = { ignore: ['xyz'] };
     const r = new QsRedirector(param);
 
     // URLクエリ文字列 `xyz=999` を解釈して何かを行なう
-    const xyz = r.getParamValue('xyz');
-    doSomething(xyz); // 何らかの処理 `doSomething()` を実行
+    const valueXyz = r.getParamValue('xyz');
+    doSomething(valueXyz); // 何らかの処理 `doSomething()` を実行
 
-    // リダイレクト実行 http://example.com/lp/page?abc=123
+    // リダイレクト実行 http://example.com/lp/page?abc=123 へ
     r.redirect();
 </script>
 ```
@@ -186,24 +187,22 @@ r.redirect();
 
     const r = new QsRedirector(param);
     // URLクエリ文字列 `xyz=999` を解釈して何かを行なう
-    const xyz = r.getParamValue('xyz');
-    doSomething(xyz); // 何らかの処理 `doSomething()` を実行
+    const valueXyz = r.getParamValue('xyz');
+    doSomething(valueXyz); // 何らかの処理 `doSomething()` を実行
 
-    // リダイレクト実行 http://example.net/lp/page?abc=123
+    // リダイレクト実行 http://example.net/lp/page?abc=123 へ
     r.redirect();
 </script>
 ```
-
-`example.net` の他にも飛ばし先候補があるなら、このリダイレクタで受け取ったクエリ文字列を解釈して、 `param = {}` の内容を変更する処理を追加してください。
 
 ## オプション
 
 基本的に **オプション無指定** = **デフォルトのまま** 実行できます。細かい制御をする際に以下のオプションを指定して、 `new QsRedirector({...})` してください。
 
 * keyDest (String) - リダイレクト先のディレクトリを指定するクエリ文字列のキー名。無指定なら `xxx.html?dest=somewhere` の `dest` が使われます
-    * default: `dest`
+    * default: `'dest'`
     * example: `{ keyDest: 'dir' }`
-        * `xxx.html?dir=somewhere` のように `dir` での指定を読み取ります
+        * `xxx.html?dir=somewhere` となっている `dir` 部分をリダイレクト先ディレクトリとして読み取ります
 * ignore (Array<Sting>) - リダイレクト先には渡さないクエリ文字列のキー名
     * default: `[]`
     * example: `{ ignore: ['abc', 'deleteme'] }`
@@ -216,24 +215,22 @@ r.redirect();
 * host (String) - リダイレクト先のホスト名。無指定なら現在のURIから自動取得
     * default: `window.location.hostname`
     * example: `{ host: 'example.com' }`
-* shouldSanitize (Boolean) - クエリ文字列内の`<>()`を除去するかどうか。無指定なら除去
+* shouldSanitize (Boolean) - クエリ文字列内の`<>()`を除去し、二重引用符をURLエンコードするかどうか。無指定なら`true`になり除去
     * default: `true`
     * example: `{ shouldSanitize: false }`
 
 ※ `shouldSanitze` フラグでの一部文字列除去は、リダイレクト先の脆弱性を突かれにくくするための「気休め」です。sanitize の役割はあまり期待しないでください。
 
-なお、クエリ文字列としてJSONを与えられることがあるので、引用符は除去対象外にしています。
-
 ### セキュリティ上の注意
 
-️️❗ `protocol` や `host` などのリダイレクト先を大きく変更する値は、クエリ文字列に与えられた文字列そのものを使わないようにしてください。脆弱性に繋がります。
+️️❗ `protocol` や `host` などのリダイレクト先を現在のサイトから変更する設定は、クエリ文字列に与えられた文字列そのものを使わないようにしてください。脆弱性に繋がります。
 
 
 💀 危険な例
 
 ```JavaScript
 /*
- * 悪意のある第3者が以下のURIをばらまいたと想定
+ * 悪意のある第三者が以下のURIをばらまいたと想定
  * http://example.com/redirect?dest=dir/&host=danger.danger&x=abc
  * `danger.danger` は危険なドメイン
  * ️️
@@ -258,7 +255,8 @@ r.redirect();
 ```JavaScript
 /*
  * http://example.com/redirect?dest=dir/&type=net&x=abc で到達
- * http://example.net/dir/?x=abc にリダイレクトしたい
+ * example.net/dir または example.com/dir にリダイレクトしたい
+ * この例は example.net を意図
  */
 
 const param = { ignore: 'type' };
@@ -272,7 +270,7 @@ const type = r.getParamValue('type');
 r.setHost(hosts[type]);
 // `hosts` に存在しない想定外の`type`なら無視され、危険なリダイレクトを防ぐ
 
-// リダイレクト実行
+// リダイレクト実行。現在のホストへ
 r.redirect();
 ```
 
