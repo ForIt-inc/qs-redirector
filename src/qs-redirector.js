@@ -50,6 +50,18 @@ const createQueryString = queryStringArray =>
   }).join('&');
 
 /**
+ * 悪意がありそうなクエリ文字列を書き換える
+ *
+ * JSONで使われず、XSSを目論んでそうなクエリ文字列を削除している
+ * かなり雑なやり方なので注意
+ *
+ * @param   {string} qs クエリ文字列
+ * @return  {string}    書き換え後のクエリ文字列
+ */
+const sanitizeQueryString = qs =>
+  qs.replace(/[<>()]|%3C|%3E|%28|%29/g, '');
+
+/**
  * 引き渡すクエリ文字列を簡単に編集できるリダイレクタ
  * クエリパラメータの操作機能も備えている
  */
@@ -94,10 +106,8 @@ class QsRedirector {
     this.protocol = protocol;
     this.host = host;
     this.fixedDest = dest;
-    this.shouldSanitze = shouldSanitize;
-    // JSONで使われず、XSSを目論んでそうなクエリ文字列を削除。雑なやり方なので扱い注意
-    this.query =
-      shouldSanitize ? query.replace(/[<>()]|%3C|%3E|%28|%29/g, '') : query;
+    this.shouldSanitize = shouldSanitize;
+    this.query = shouldSanitize ? sanitizeQueryString(query) : query;
     this.allQueryStringHash = getAllKeyValue(this.query);
   }
 
@@ -236,7 +246,7 @@ class QsRedirector {
     // destがコンストラクタ引数もしくは`setDest()`で指定されていたら、そちらを優先する
     const rawDest = (this.fixedDest === '') ? this.getParamValue(this.keyDest) : this.fixedDest;
 
-    // 飛び先。念のためURIデコードし、エスケープとプロコル指定と相対指定を破壊する
+    // 飛び先。念のためURIデコードし、エスケープとプロトコル指定（スキーム指定）と相対指定を破壊する
     const sanitizedDest =
       decodeURIComponent(rawDest).replace(/\\/g, '').replace(/:\//g, '').replace(/\.\.+/g, '');
 
@@ -247,7 +257,10 @@ class QsRedirector {
     const queryString =
       createQueryString(this.getFilteredQueryStringHash());
 
-    return `${protocol}//${host_dest}?${queryString}`;
+    const uri = `${protocol}//${host_dest}?${queryString}`;
+
+    // 本来URIには使えない`"`をエンコードして返す
+    return this.shouldSanitize ? uri.replace(/"/g, '%22') : uri;
   }
 
   /**

@@ -65,7 +65,7 @@ const dataNormal = [
     protocol,
     query: `?dest=?xid=sample%20shop+ex`,
     redirect: `${url}/?xid=sample%20shop+ex`
-  }
+  },
 ];
 
 /*
@@ -96,13 +96,6 @@ const dataUnusual = [
     query: `?dest=yyy%2Fxxx%2Fyyy?x=%7B%22key%22%3A%22value%7D`,
     redirect: `${url}/yyy/xxx/yyy?x=%7B%22key%22%3A%22value%7D`
   },
-  { // スクリプトを渡そうとしているが、`shouldSanitize = false` なので何もしない
-    host,
-    protocol,
-    shouldSanitize: false,
-    query: `?dest=/yyy/xxx/yyy&x=abc&tag=<script>alert()</script>`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&tag=<script>alert()</script>`
-  },
   { // protocolに`:`がない
     host,
     protocol: 'http',
@@ -115,12 +108,25 @@ const dataUnusual = [
     query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
     redirect: `http://${host}/yyy/xxx/yyy?x=abc&y=def`
   },
-  { // 無視すべきキーが配列ではなく文字列で指定されている
+  { // あちこちに余計な引用符がある
+    host,
+    protocol,
+    query: `?dest=zzz/xxx/"y'y"y?x=ab'c?y="def`,
+    redirect: `${url}/zzz/xxx/%22y'y%22y?x=ab'c&y=%22def`
+  },
+  { // 無視すべきキー(ignore)が配列ではなく単一の文字列で指定されている
     host,
     protocol,
     ignore: 'fil',
     query: `?fil=ignore&a=aaa&b=bbb&dest=subdir/&ignore=deleteme`,
     redirect: `${url}/subdir/?a=aaa&b=bbb&ignore=deleteme`
+  },
+  { // スクリプトを渡そうとしているが、`shouldSanitize = false` なので何もしない
+    host,
+    protocol,
+    shouldSanitize: false,
+    query: `?dest=/yyy/xxx/yyy&x=abc&tag=<script>alert()</script>`,
+    redirect: `${url}/yyy/xxx/yyy?x=abc&tag=<script>alert()</script>`
   },
 ];
 
@@ -156,14 +162,14 @@ const dataCrack = [
     host,
     protocol,
     query: `?dest=/yyy/xxx/yyy&x=abc&script="</script><script>alert()</script>`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&script="/scriptscriptalert/script`
+    redirect: `${url}/yyy/xxx/yyy?x=abc&script=%22/scriptscriptalert/script`
   },
   { // 小細工してURLやスクリプトを入れようとしているので壊す
     host,
     protocol,
     query: `?dest=//http%3A%2F%2Fexample.com&x=abc&script="<script>alert%28%29%3C/script%3E`,
-    redirect: `${url}/http/example.com?x=abc&script="scriptalert/script`
-  }
+    redirect: `${url}/http/example.com?x=abc&script=%22scriptalert/script`
+  },
 ];
 
 /* ********* テスト開始 ********* */

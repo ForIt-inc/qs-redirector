@@ -26,7 +26,7 @@
 
 ## インストール（ビルド方法）
 
-npm には登録していませんので、直接ダウンロードしてご利用ください。
+[npm](https://www.npmjs.com/) には登録していませんので、直接ダウンロードしてご利用ください。
 
 1. 本プロジェクトのソースコード一式をダウンロード
 2. ターミナルを起動して、本プロジェクトのルートディレクトリへ移動
@@ -38,10 +38,13 @@ npm には登録していませんので、直接ダウンロードしてご利
 * `npm run build:dev` - 開発ビルド。コード短縮なし
 * `npm run build:product` - 自動テスト + 本番ビルド（コードを短縮）
 
+### ️️💡 そういう面倒なこと抜きで使うには？
 
-### ️️💡 面倒なこと抜きでそのまま使うには？
+[sample/js/qs-redirector.js](sample/js/qs-redirector.js) は、予め上記の本番ビルドをしたコードです。
 
-[sample/js/qs-redirector.js](sample/js/qs-redirector.js) は、予め上記の本番ビルドをしたコードです。このファイルを単純にコピーすれば、ビルド不要でそのままご利用になれます。
+このファイルを単純にコピーすれば、ビルド不要で **そのままご利用になれます。** 
+
+### 💡 サンプルコードを動かしてみるには？
 
 `npm install`が完了した状態で `npm start`と打つと、自動的にサーバとブラウザが起動して、実際の動作を確認できます。
 
@@ -51,7 +54,7 @@ npm には登録していませんので、直接ダウンロードしてご利
 
 * [qs-redirector.html](sample/qs-redirector.html) - シンプルなリダイレクトの例。リダイレクト先をクエリ文字列で与えられています
 * [fixed-qs-redirector.html](sample/fixed-qs-redirector.html) - 上記のシンプルな例とほぼ同じ。外部のサイトにリダイレクトするようファイル内で指定しています
-* [ex-qs-redirector.html](sample/ex-qs-redirector.html) - 外部のサイトをクエリ文字列内で選択してリダイレクトする例
+* [ex-qs-redirector.html](sample/ex-qs-redirector.html) - 外部のサイトをクエリ文字列内で選択して安全にリダイレクトする例
 * [afb-qs-redirector.html](sample/afb-qs-redirector.html) - afbのcookieを保存後にリダイレクトする例
 
 
@@ -117,8 +120,8 @@ npm には登録していませんので、直接ダウンロードしてご利
 
 後述のオプションの指定や、クエリ文字列中の`keyDest`で指定したキーの値を無視して、以下の値を変更します。
 
-* `setProtocol(string)` - protocolの値を変更します
-* `setHost(string)` - hostの値を変更します
+* `setProtocol(string)` - オプションのprotocolの値を変更します
+* `setHost(string)` - オプションのhostの値を変更します
 * `setDest(string)` - ディレクトリとファイルの値を変更します
 
 ```javascript
@@ -205,7 +208,7 @@ r.redirect();
 * query (String) - クエリ文字列すべて。主にテスト時に使用。無指定なら現在のURIから自動取得
     * default: `window.location.search`
     * example: `{ query: '?abc=123&xyz=zyx' }`
-* protocol (String) - リダイレクト先のプロトコル。無指定なら現在のURIから自動取得
+* protocol (String) - リダイレクトのプロトコル（スキーム）。無指定なら現在のURIから自動取得
     * default: `window.location.protocol`
     * example: `{ protocol: 'https:' }`
 * host (String) - リダイレクト先のホスト名。無指定なら現在のURIから自動取得
@@ -238,8 +241,9 @@ r.redirect();
 const param = { ignore: 'type' };
 const r = new QsRedirector(param);
 
-// クエリ文字列から`host`の値そのものを取得する ️️❗ ここが危険
-const host = r.getParamValue('host')
+// クエリ文字列から`host`の値そのものを取得する ️
+// ❗ ここが危険
+const host = r.getParamValue('host');
 // リダイレクト先ホストを `danger.danger` に設定
 r.setHost(host);
 
@@ -261,7 +265,7 @@ const r = new QsRedirector(param);
 // hostのパターンを設定
 const hosts = { com: 'example.com', net: 'example.net' };
 // クエリ文字列から`type`の値を取得する。この例では `net` という文字列
-const type = r.getParamValue('type')
+const type = r.getParamValue('type');
 // リダイレクト先ホストを設定。この例では `example.net` が選択される
 r.setHost(hosts[type]);
 // `hosts` に存在しない想定外の`type`なら無視され、危険なリダイレクトを防ぐ
