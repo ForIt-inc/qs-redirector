@@ -1,228 +1,74 @@
 import test from 'ava';
 import Redirector from 'src/qs-redirector';
+import { dataNormal, dataUnusual, dataCrack } from './data/qs-redirector.data';
 
-const host = 'example.com';
-const protocol = 'https:';
-const url = `${protocol}//${host}`;
+/* ********* テスト用のユーティリティ ********* */
 
-/*
- * 正常系データ
+/**
+ * リダイレクタを使って指示通りのURIを生成する
+ *
+ * @param {Object} elm  リダイレクタに渡す引数オブジェクト
  */
-const dataNormal = [
-  {
-    host,
-    protocol,
-    query: `?dest=yyy/xxx/yyy.html&x=abc`,
-    redirect: `${url}/yyy/xxx/yyy.html?x=abc`
-  },
-  {
-    host,
-    protocol,
-    query: `?dest=?p=`,
-    redirect: `${url}/?p=`
-  },
-  {
-    host,
-    protocol,
-    query: `?dest=&a=aaa&b=bbb`,
-    redirect: `${url}/?a=aaa&b=bbb`
-  },
-  { // ディレクトリ設定が後に配置されている
-    host,
-    protocol,
-    query: `?a=aaa&b=bbb&dest=subdir/`,
-    redirect: `${url}/subdir/?a=aaa&b=bbb`
-  },
-  { // 無視すべきキーがきちんと無視される
-    host,
-    protocol,
-    ignore: ['fil', 'ignore'],
-    query: `?fil=ignore&a=aaa&b=bbb&dest=subdir/&ignore=deleteme`,
-    redirect: `${url}/subdir/?a=aaa&b=bbb`
-  },
-  { // ディレクトリ設定キーの変更がきちんと反映される
-    host,
-    protocol,
-    keyDest: 'dir',
-    query: `?a=aaa&b=bbb&dir=subdir/`,
-    redirect: `${url}/subdir/?a=aaa&b=bbb`
-  },
-  { // 飛び先ディレクトリ以下が指定されている
-    host,
-    protocol,
-    dest: 'fixed',
-    query: `?a=aaa&b=bbb&dest=subdir/`,
-    redirect: `${url}/fixed?a=aaa&b=bbb`
-  },
-  { // パラメータに空白があってもそのまま出力する
-    host,
-    protocol,
-    query: `?dest=dir/file?xid=sample shop ex`,
-    redirect: `${url}/dir/file?xid=sample shop ex`
-  },
-  { // URIエンコードされていてもそのまま引き渡す
-    host,
-    protocol,
-    query: `?dest=?xid=sample%20shop+ex`,
-    redirect: `${url}/?xid=sample%20shop+ex`
-  },
-];
-
-/*
- * 正常だが少し崩れたデータ
- */
-const dataUnusual = [
-  { // `&`ではなく`?`でつないである
-    host,
-    protocol,
-    query: `?dest=/xxx/xxx/yyy?x=abc`,
-    redirect: `${url}/xxx/xxx/yyy?x=abc`
-  },
-  { // ディレクトリ指定で、頭に`/`がある
-    host,
-    protocol,
-    query: `?dest=/yyy/xxx/yyy?x=abc?y=def`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
-  },
-  { // 頭の`?`がない
-    host,
-    protocol,
-    query: `dest=/xyz/xxx/yyy?x=abc?y=def`,
-    redirect: `${url}/xyz/xxx/yyy?x=abc&y=def`
-  },
-  { // value部分がURIエンコードしてある(?dだけデコード)
-    host,
-    protocol,
-    query: `?dest=yyy%2Fxxx%2Fyyy?x=%7B%22key%22%3A%22value%7D`,
-    redirect: `${url}/yyy/xxx/yyy?x=%7B%22key%22%3A%22value%7D`
-  },
-  { // protocolに`:`がない
-    host,
-    protocol: 'http',
-    query: `dest=/yyy/xxx/yyy?x=abc?y=def`,
-    redirect: `http://${host}/yyy/xxx/yyy?x=abc&y=def`
-  },
-  { // protocolに不要な`/`がある
-    host,
-    protocol: 'http://',
-    query: `dest=/zzz/xxx/yyy?x=abc?y=def`,
-    redirect: `http://${host}/zzz/xxx/yyy?x=abc&y=def`
-  },
-  { // あちこちに余計な引用符がある
-    host,
-    protocol,
-    query: `?dest=abc/xxx/"y'y"y?x=ab'c?y="def`,
-    redirect: `${url}/abc/xxx/%22y'y%22y?x=ab'c&y=%22def`
-  },
-  { // 無視すべきキー(ignore)が配列ではなく単一の文字列で指定されている
-    host,
-    protocol,
-    ignore: 'fil',
-    query: `?fil=ignore&a=aaa&b=bbb&dest=subdir/&ignore=deleteme`,
-    redirect: `${url}/subdir/?a=aaa&b=bbb&ignore=deleteme`
-  },
-  { // スクリプトを渡そうとしているが、`shouldSanitize = false` なので何もしない
-    host,
-    protocol,
-    shouldSanitize: false,
-    query: `?dest=/yyy/xxx/yyy&x=abc&tag=<script>alert()</script>`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&tag=<script>alert()</script>`
-  },
-];
-
-/*
- * クラッキング狙いのデータ
- */
-const dataCrack = [
-  { // ディレクトリを相対指定している
-    host,
-    protocol,
-    query: `?dest=../\.\./passwd?x=abc?y=def`,
-    redirect: `${url}/passwd?x=abc&y=def`
-  },
-  { // ディレクトリ指定のあちこちに余計な`/`がある
-    host,
-    protocol,
-    query: `?dest=/yyy//xxx///yyy?x=abc?y=def`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
-  },
-  { // ディレクトリ指定のあちこちに怪しい`\`がある
-    host,
-    protocol,
-    query: `?dest=\\\/yyy/\/xxx/\\//yyy?x=abc?y=def`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&y=def`
-  },
-  { // URLを入れようとしているので壊す
-    host,
-    protocol,
-    query: `?dest=//http://example.com&x=abc`,
-    redirect: `${url}/http/example.com?x=abc`
-  },
-  { // スクリプトを入れようとしているので壊す
-    host,
-    protocol,
-    query: `?dest=/yyy/xxx/yyy&x=abc&script="</script><script>alert()</script>`,
-    redirect: `${url}/yyy/xxx/yyy?x=abc&script=%22/scriptscriptalert/script`
-  },
-  { // 小細工してURLやスクリプトを入れようとしているので壊す
-    host,
-    protocol,
-    query: `?dest=//http%3A%2F%2Fexample.com&x=abc&script="<script>alert%28%29%3C/script%3E`,
-    redirect: `${url}/http/example.com?x=abc&script=%22scriptalert/script`
-  },
-];
+const getResult = (elm) => {
+  const r = new Redirector(elm);
+  return r.getRedirectUri(elm);
+};
 
 /* ********* テスト開始 ********* */
 
 test('正しいリダイレクト先URIを生成できる', (t) => {
-  const result = dataNormal.map((elm) => {
-    const r = new Redirector(elm);
-    return r.getRedirectUri(elm);
+  dataNormal.forEach((elm, index) => {
+    const result = getResult(elm);
+    const expected = elm.redirect;
+    t.is(result, expected, `️️❗ failed at "dataNormal" #${index}`);
   });
-  const expected = dataNormal.map(elm => elm.redirect);
-
-  t.deepEqual(result, expected);
 });
 
 test('少し形式がおかしくても正しいリダイレクト先を生成できる', (t) => {
-  const result = dataUnusual.map((elm) => {
-    const r = new Redirector(elm);
-    return r.getRedirectUri(elm);
+  dataUnusual.forEach((elm, index) => {
+    const result = getResult(elm);
+    const expected = elm.redirect;
+    t.is(result, expected, `️️❗ failed at "dataUnusual" #${index}`);
   });
-  const expected = dataUnusual.map(elm => elm.redirect);
-
-  t.deepEqual(result, expected);
 });
 
 test('危険そうな文字を削除してリダイレクト先を生成できる', (t) => {
-  const result = dataCrack.map((elm) => {
-    const r = new Redirector(elm);
-    return r.getRedirectUri(elm);
+  dataCrack.forEach((elm, index) => {
+    const result = getResult(elm);
+    const expected = elm.redirect;
+    t.is(result, expected, `️️❗ failed at "dataCrack" #${index}`);
   });
-  const expected = dataCrack.map(elm => elm.redirect);
-
-  t.deepEqual(result, expected);
 });
 
 /* ****** パラメータ操作のテスト ***** */
+
 test('クエリ文字中の特定パラメータの存在を確かめられる', (t) => {
-  const paramKeys = ['x', 'y']; // `y` は存在しないので、ログでその旨を報告される
-  const expected = [true, false];
+  const data = [
+    { paramKey: 'x', expected: true },
+    // 存在しないパラメータのテスト。テストは通るが、console.log()でその旨を報告される
+    { paramKey: 'y', expected: false }
+  ];
 
-  const r = new Redirector(dataNormal[0]);
-  const result = paramKeys.map(elm => r.existsParam(elm));
+  data.forEach((elm) => {
+    const r = new Redirector(dataNormal[0]);
+    const result = r.existsParam(elm.paramKey);
 
-  t.deepEqual(result, expected);
+    t.is(result, elm.expected);
+  });
 });
 
 test('クエリ文字中の特定パラメータの値を取得できる', (t) => {
-  const paramKeys = ['x', 'y'];
-  const expected = ['abc', ''];
+  const data = [
+    { paramKey: 'x', expected: 'abc' },
+    { paramKey: 'y', expected: '' }
+  ];
 
-  const r = new Redirector(dataNormal[0]);
-  const result = paramKeys.map(elm => r.getParamValue(elm));
+  data.forEach((elm) => {
+    const r = new Redirector(dataNormal[0]);
+    const result = r.getParamValue(elm.paramKey);
 
-  t.deepEqual(result, expected);
+    t.is(result, elm.expected);
+  });
 });
 
 test('クエリ文字中の特定パラメータの値を追加できる', (t) => {
@@ -267,29 +113,49 @@ test('protocol, host, destの値を変更できる', (t) => {
 });
 
 test('protocol, host, destの値が空文字またはundefinedなら無視する', (t) => {
-  const data = dataNormal[0];
-  const expected = [true, true];
-  const opts = [
-    {
-      protocol: '',
-      host: '',
-      dest: ''
-    },
-    {
-      protocol: undefined,
-      host: undefined,
-      dest: undefined
-    }
+  const defaultParam = dataNormal[0];
+  const data = [
+    { opts: { protocol: '', host: '', dest: '' }, expected: true },
+    { opts: { protocol: undefined, host: undefined, dest: undefined }, expected: true }
   ];
 
-  const r = new Redirector(data);
+  const r = new Redirector(defaultParam);
 
-  const results = opts.map((elm) => {
-    r.setProtocol(elm.protocol);
-    r.setHost(elm.host);
-    r.setDest(elm.dest);
-    return r.getRedirectUri() === data.redirect;
+  data.forEach((elm) => {
+    const { opts, expected } = elm;
+
+    r.setProtocol(opts.protocol);
+    r.setHost(opts.host);
+    r.setDest(opts.dest);
+    const result = r.getRedirectUri() === defaultParam.redirect;
+
+    t.is(result, expected);
   });
+});
 
-  t.deepEqual(results, expected);
+/* ********** あまり考えにくい状況だが念のために ********** */
+
+test('複数のリダイレクタが共存できる', (t) => {
+  const data = dataNormal[0];
+  const newParam = { x: 'xyz' };
+
+
+  const r1 = new Redirector(data);
+  const result1 = r1.getRedirectUri();
+  const expected1 = data.redirect;
+
+  if (result1 !== expected1) {
+    t.fail();
+  }
+
+  const r2 = new Redirector(data);
+  r2.changeParam(newParam);
+  const result2 = r2.getRedirectUri();
+  const expected2 = `${data.redirect.replace(/x=abc/, 'x=xyz')}`;
+
+  if (result2 !== expected2) {
+    t.fail();
+  }
+
+  t.not(result1, result2);
 });
