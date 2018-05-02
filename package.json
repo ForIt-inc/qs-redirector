@@ -1,15 +1,15 @@
 {
-  "name": "afb_jslib",
+  "name": "qs-redirector",
   "version": "1.0.0",
   "description": "Redirecting according to query string",
-  "main": "./dist/bundle.js",
+  "main": "./dist/qs-redirector.js",
   "private": true,
   "scripts": {
     "ava": "cross-env NODE_ENV=test NODE_PATH=./ ava --verbose",
-    "build": "npm run build:dev",
-    "build:dev": "rollup --config rollup.qs-redirector.config.js",
+    "build": "npm run build:develop",
+    "build:develop": "rollup --config rollup.qs-redirector.config.js",
     "build:product": "npm-run-all clean test build:pro:without_test copy:redirect",
-    "build:pro:without_test": "cross-env BUILD_ENV=production npm run build",
+    "build:pro:without_test": "cross-env BUILD_ENV=production npm run build:develop",
     "clean": "rimraf ./dist/*",
     "copy": "run-p copy:**",
     "copy:redirect": "node ./copy-qs-redirector.js",
@@ -56,7 +56,8 @@
     "concurrency": 5,
     "failFast": true,
     "files": [
-      "test/**/*.js"
+      "test/**/*.js",
+      "!**/*.data.js"
     ],
     "require": [
       "babel-register"
