@@ -37,7 +37,7 @@
 
 あとは、下記コマンドをターミナルで打ちトランスパイルをして、 `./dist` に出力されるJavaScriptを任意のディレクトリに置いて、HTMLから &lt;script&gt; タグで呼び出してください。
 
-* `npm run build:dev` - 開発ビルド。コード短縮なし
+* `npm run build:develop` - 開発ビルド。コード短縮なし
 * `npm run build:product` - 自動テスト + 本番ビルド（コードを短縮）
 
 ### ️️💡 そういう面倒なこと抜きで使うには？
@@ -276,7 +276,7 @@ r.redirect();
 
 ## 主要 npm scripts
 
-* `npm run build:dev` - `./src`のソースを`./dist`へ開発用にトランスパイル
+* `npm run build:develop` - `./src`のソースを`./dist`へ開発用にトランスパイル
 * `npm run build:product` - `./src`のソースを`./dist`へ本番用にトランスパイル
 * `npm test` - `./test`内のファイル内容に従って、自動テスト
     * [AVA](https://github.com/avajs/ava) を利用しています
