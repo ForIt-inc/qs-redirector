@@ -3,7 +3,7 @@ import commonjs     from 'rollup-plugin-commonjs';
 import babel        from 'rollup-plugin-babel';
 import uglify       from 'rollup-plugin-uglify';
 
-// `npm run deploy` のときは true。それ以外はfalseになる
+// `build:product` のときは true。それ以外はfalseになる
 const isProductMode = process.env.BUILD_ENV === "production";
 export default {
   // トランスパイル対象のファイル。import対象をここから辿っていき結合する
@@ -18,13 +18,13 @@ export default {
   },
   // ↓ここからコードの変換の処理設定。順番に処理される
   plugins: [
-    // npmモジュールを `./node_modules` から ES6の `import` で読み込む
+    // npmモジュールを `./node_modules` から `import` で読み込む
     nodeResolve({ jsnext: true }),
     // CommonJSモジュールをES6に変換
     commonjs(),
     // BabelでES5に変換。Babelの設定は、`./.babelrc`に書いてある
     babel({ exclude: 'node_modules/**' }),
-    // `npm run deploy` 時に、ソースコードを圧縮する
+    // `build:product` 時に、ソースコードを圧縮する
     isProductMode ? uglify({ output: { quote_style: 3 } }) : ""
   ]
 };
